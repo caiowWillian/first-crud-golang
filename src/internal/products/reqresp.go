@@ -21,7 +21,6 @@ type (
 )
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(response.(createProductResponse).StatusCode)
 	return json.NewEncoder(w).Encode(response)
