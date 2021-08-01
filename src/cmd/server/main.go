@@ -12,11 +12,34 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
+	"github.com/opentracing/opentracing-go"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/uber/jaeger-client-go"
+	"github.com/uber/jaeger-client-go/config"
 )
 
 const port = 5555
 
 func main() {
+	jaegerCfg := config.Configuration{
+		ServiceName: "first-crud-golang",
+		Sampler: &config.SamplerConfig{
+			Type:  jaeger.SamplerTypeConst,
+			Param: 1,
+		},
+		Reporter: &config.ReporterConfig{
+			LogSpans: true,
+		},
+	}
+
+	tracer, closer, err := jaegerCfg.NewTracer()
+
+	if err != nil {
+		os.Exit(0)
+	}
+
+	opentracing.SetGlobalTracer(tracer)
+	defer closer.Close()
 	var logger log.Logger
 	{
 		logger = log.NewLogfmtLogger(os.Stderr)
@@ -44,8 +67,9 @@ func main() {
 	go func() {
 		address := fmt.Sprintf(":%d", port)
 		r := mux.NewRouter()
-
+		r.Handle("/metrics", promhttp.Handler())
 		route.MakeRoutes(ctx, r)
+
 		fmt.Println("listening on port", address)
 		errs <- http.ListenAndServe(address, r)
 	}()
