@@ -1,6 +1,10 @@
 package products
 
-import "github.com/caiowWillian/first-crud-golang/src/pkg/databases/mongo"
+import (
+	"fmt"
+
+	"github.com/caiowWillian/first-crud-golang/src/pkg/databases/mongo"
+)
 
 type Service interface {
 	CreateProduct(product Product) bool
@@ -13,6 +17,7 @@ func NewService() Service {
 }
 
 func (s *service) CreateProduct(product Product) bool {
-	mongo.Repo().Insert(mongo.MongoOperation{"teste", "teste", product})
+	err := mongo.Repo().Insert(mongo.MongoOperation{"teste", "teste", product})
+	fmt.Println(err)
 	return true
 }
