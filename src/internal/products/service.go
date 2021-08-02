@@ -7,6 +7,7 @@ import (
 
 type Service interface {
 	CreateProduct(product Product) (string, error)
+	GetAllProducts() ([]Product, error)
 }
 
 type service struct{}
@@ -23,4 +24,15 @@ func (s *service) CreateProduct(product Product) (string, error) {
 		return "", err
 	}
 	return product.Id, nil
+}
+
+func (s *service) GetAllProducts() ([]Product, error) {
+	var product []Product
+	err := mongo.Repo().GetAll(mongo.MongoOperation{"teste", "teste", nil}, &product)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return product, nil
 }

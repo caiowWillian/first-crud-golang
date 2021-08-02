@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+
+	"github.com/caiowWillian/first-crud-golang/src/pkg/encodedError"
 )
 
 type (
@@ -39,18 +41,11 @@ func decodeProductReq(ctx context.Context, r *http.Request) (interface{}, error)
 	var req Product
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		return nil, err
+		return nil, encodedError.BadRequest
 	}
 	return req, nil
 }
 
-func encodeErrorResponse(_ context.Context, err error, w http.ResponseWriter) {
-	if err == nil {
-		panic("encodeError with nil error")
-	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusInternalServerError)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"error": err.Error(),
-	})
+func decodeGetProductReq(ctx context.Context, r *http.Request) (interface{}, error) {
+	return r, nil
 }

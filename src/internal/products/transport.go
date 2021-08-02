@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/caiowWillian/first-crud-golang/src/pkg/encodedError"
 	httptransport "github.com/go-kit/kit/transport/http"
 
 	"github.com/gorilla/mux"
@@ -11,7 +12,7 @@ import (
 
 func NewHTTPServer(ctx context.Context, s Service, router *mux.Router) http.Handler {
 	opts := []httptransport.ServerOption{
-		httptransport.ServerErrorEncoder(encodeErrorResponse),
+		httptransport.ServerErrorEncoder(encodedError.EncodeError),
 	}
 
 	router.Use(commonMiddleware)
@@ -20,6 +21,13 @@ func NewHTTPServer(ctx context.Context, s Service, router *mux.Router) http.Hand
 		makeCreateProduct(s),
 		decodeProductReq,
 		encodeResponse,
+		opts...,
+	))
+
+	router.Methods(http.MethodGet).Path("/product").Handler(httptransport.NewServer(
+		makeGetAllProducts(s),
+		decodeGetProductReq,
+		httptransport.EncodeJSONResponse,
 		opts...,
 	))
 

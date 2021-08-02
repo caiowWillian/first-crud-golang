@@ -2,7 +2,6 @@ package mongo
 
 import (
 	"context"
-	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,7 +11,7 @@ import (
 type Repository interface {
 	Insert(operation MongoOperation) error
 	Ping() error
-	GetAll(operation MongoOperation, data interface{}) (interface{}, error)
+	GetAll(operation MongoOperation, data interface{}) error
 }
 
 type MongoOperation struct {
@@ -54,12 +53,18 @@ func (repo *repository) Ping() error {
 	return err
 }
 
-func (repo *repository) GetAll(operation MongoOperation, data interface{}) (interface{}, error) {
+func (repo *repository) GetAll(operation MongoOperation, data interface{}) error {
 	cursor, err := repo.db.Database(operation.Database).Collection(operation.Collection).Find(context.Background(), bson.D{})
 
+	if err != nil {
+		return err
+	}
 	cursor.All(context.Background(), data)
-	fmt.Println(cursor, err)
-	return nil, nil
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func Repo() Repository {
