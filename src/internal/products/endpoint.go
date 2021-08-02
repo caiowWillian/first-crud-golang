@@ -2,6 +2,7 @@ package products
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
@@ -10,7 +11,12 @@ import (
 func makeCreateProduct(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(Product)
-		s.CreateProduct(req)
-		return createProductResponse{"oneid", http.StatusCreated}, nil
+		id, err := s.CreateProduct(req)
+
+		if err != nil {
+			return nil, errors.New("Internal Server Error")
+		}
+
+		return createProductPostResponse{id, http.StatusCreated}, nil
 	}
 }

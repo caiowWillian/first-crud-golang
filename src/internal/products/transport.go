@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/caiowWillian/first-crud-golang/src/pkg/error"
 	httptransport "github.com/go-kit/kit/transport/http"
 
 	"github.com/gorilla/mux"
@@ -12,7 +11,7 @@ import (
 
 func NewHTTPServer(ctx context.Context, s Service, router *mux.Router) http.Handler {
 	opts := []httptransport.ServerOption{
-		httptransport.ServerErrorEncoder(error.EncodeError),
+		httptransport.ServerErrorEncoder(encodeErrorResponse),
 	}
 
 	router.Use(commonMiddleware)

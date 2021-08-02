@@ -14,15 +14,24 @@ type (
 		Inventory int     `json:"inventory"`
 	}
 
-	createProductResponse struct {
+	createProductPostResponse struct {
 		Id         string `json:"id"`
 		StatusCode int    `json:"-"`
+	}
+
+	createProductGet struct {
+		StatusCode int `json:"-"`
+	}
+
+	errResponse struct {
+		StatusCode int
+		err        string
 	}
 )
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(response.(createProductResponse).StatusCode)
+	w.WriteHeader(response.(createProductPostResponse).StatusCode)
 	return json.NewEncoder(w).Encode(response)
 }
 
@@ -33,4 +42,15 @@ func decodeProductReq(ctx context.Context, r *http.Request) (interface{}, error)
 		return nil, err
 	}
 	return req, nil
+}
+
+func encodeErrorResponse(_ context.Context, err error, w http.ResponseWriter) {
+	if err == nil {
+		panic("encodeError with nil error")
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusInternalServerError)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"error": err.Error(),
+	})
 }
