@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -30,7 +31,6 @@ var repo Repository
 func newMongo() Repository {
 	options := options.Client().ApplyURI("mongodb://localhost:27017/teste")
 	client, err := mongo.Connect(context.TODO(), options)
-
 	return &repository{client, err}
 }
 
@@ -44,6 +44,7 @@ func init() {
 
 func (repo *repository) Insert(operation MongoOperation) error {
 	_, err := repo.db.Database(operation.Database).Collection(operation.Collection).InsertOne(context.TODO(), operation.Value)
+	fmt.Println(err)
 	return err
 }
 

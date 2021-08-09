@@ -10,15 +10,17 @@ type Service interface {
 	GetAllProducts() ([]Product, error)
 }
 
-type service struct{}
+type service struct {
+	repo mongo.Repository
+}
 
-func NewService() Service {
-	return &service{}
+func NewService(repo mongo.Repository) Service {
+	return &service{repo: repo}
 }
 
 func (s *service) CreateProduct(product Product) (string, error) {
 	product.Id = uuid.NewString()
-	err := mongo.Repo().Insert(mongo.MongoOperation{"teste", "teste", product})
+	err := s.repo.Insert(mongo.MongoOperation{"teste", "teste", product})
 
 	if err != nil {
 		return "", err
@@ -28,7 +30,7 @@ func (s *service) CreateProduct(product Product) (string, error) {
 
 func (s *service) GetAllProducts() ([]Product, error) {
 	var product []Product
-	err := mongo.Repo().GetAll(mongo.MongoOperation{"teste", "teste", nil}, &product)
+	err := s.repo.GetAll(mongo.MongoOperation{"teste", "teste", nil}, &product)
 
 	if err != nil {
 		return nil, err
