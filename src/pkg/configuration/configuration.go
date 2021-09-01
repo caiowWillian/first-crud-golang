@@ -7,9 +7,6 @@ import (
 	_ "github.com/spf13/viper/remote"
 )
 
-type Configuration interface {
-}
-
 type Settings struct {
 	ConsulAddress string
 	ConsulKey     string
