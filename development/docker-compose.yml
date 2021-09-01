@@ -6,3 +6,8 @@ services:
     image: 'mongo'
     ports:
       - '27017:27017'
+  
+  consul:
+    image: consul
+    ports:
+      - '8500:8500'

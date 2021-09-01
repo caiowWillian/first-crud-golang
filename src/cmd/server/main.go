@@ -6,9 +6,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"runtime"
 	"syscall"
 
 	"github.com/caiowWillian/first-crud-golang/src/cmd/server/route"
+	"github.com/caiowWillian/first-crud-golang/src/pkg/configuration"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
@@ -18,9 +21,23 @@ import (
 	"github.com/uber/jaeger-client-go/config"
 )
 
-const port = 5555
-
 func main() {
+
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+	fmt.Println(basepath)
+	configApp := configuration.Settings{
+		ConsulAddress: "http://localhost:8500",
+		ConsulKey:     "teste",
+		LocalPath:     basepath,
+	}
+
+	appsettings, configErr := configuration.NewConfigService(configApp)
+
+	if configErr != nil {
+		panic("config not found")
+	}
+
 	jaegerCfg := config.Configuration{
 		ServiceName: "first-crud-golang",
 		Sampler: &config.SamplerConfig{
@@ -65,7 +82,7 @@ func main() {
 	}()
 
 	go func() {
-		address := fmt.Sprintf(":%d", port)
+		address := fmt.Sprintf(":%d", appsettings.GetInt("port"))
 		r := mux.NewRouter()
 		r.Handle("/metrics", promhttp.Handler())
 		route.MakeRoutes(ctx, r)
